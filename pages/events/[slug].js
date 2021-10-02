@@ -1,13 +1,30 @@
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { FaPencilAlt, FaTimes } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 import { API_URL } from "@/config/index";
 import Layout from "../../components/Layout";
 import styles from "@/styles/Event.module.css";
+import { useRouter } from "next/dist/client/router";
 
 const EventPage = ({ evt }) => {
-  const deleteEvent = () => {
-    console.log("delete");
+  const router = useRouter();
+
+  const deleteEvent = async () => {
+    if (confirm("Are you sure?")) {
+      const res = await fetch(`${API_URL}/events/${evt.id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.message);
+      } else {
+        router.push("/events");
+      }
+    }
   };
   return (
     <Layout>
@@ -24,12 +41,18 @@ const EventPage = ({ evt }) => {
         </div>
 
         <span>
-          {evt.date} at {evt.time}
+          {new Date(evt.date).toLocaleDateString("en-US")} at {evt.time}
         </span>
         <h1>{evt.name}</h1>
+        <ToastContainer />
         {evt.image && (
           <div className={styles.image}>
-            <Image src={evt.image} width={960} height={600} alt={evt.name} />
+            <Image
+              src={evt.image.formats.medium.url}
+              width={960}
+              height={600}
+              alt={evt.name}
+            />
           </div>
         )}
 
@@ -49,7 +72,7 @@ const EventPage = ({ evt }) => {
 };
 
 export const getStaticPaths = async () => {
-  const res = await fetch(`${API_URL}/api/events`);
+  const res = await fetch(`${API_URL}/events`);
   const events = await res.json();
 
   const paths = events.map((evt) => ({
@@ -63,7 +86,7 @@ export const getStaticPaths = async () => {
 };
 
 export const getStaticProps = async ({ params: { slug } }) => {
-  const res = await fetch(`${API_URL}/api/events/${slug}`);
+  const res = await fetch(`${API_URL}/events?slug=${slug}`);
   const events = await res.json();
 
   return {
