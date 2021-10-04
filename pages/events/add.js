@@ -6,8 +6,9 @@ import Layout from "@/components/Layout";
 import { useState } from "react";
 import { useRouter } from "next/dist/client/router";
 import { API_URL } from "@/config/index";
+import { parseCookies } from "@/helpers/index";
 
-const AddEventPage = () => {
+const AddEventPage = ({ token }) => {
   const [values, setValues] = useState({
     name: "",
     performers: "",
@@ -36,6 +37,7 @@ const AddEventPage = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(values),
     });
@@ -141,6 +143,14 @@ const AddEventPage = () => {
       </form>
     </Layout>
   );
+};
+
+export const getServerSideProps = async ({ req }) => {
+  const { token } = parseCookies(req);
+
+  return {
+    props: { token },
+  };
 };
 
 export default AddEventPage;

@@ -1,7 +1,7 @@
 import cookie from "cookie";
 import { API_URL } from "@/config/index";
 
-const authData = async (req, res) => {
+const registerUser = async (req, res) => {
   if (req.method === "POST") {
     const { username, email, password } = req.body;
 
@@ -39,4 +39,4 @@ const authData = async (req, res) => {
   }
 };
 
-export default authData;
+export default registerUser;
